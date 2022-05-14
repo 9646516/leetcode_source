@@ -70,9 +70,9 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=297 lang=cpp
+ * @lc app=leetcode.cn id=449 lang=cpp
  *
- * [297] 二叉树的序列化与反序列化
+ * [449] 序列化和反序列化二叉搜索树
  */
 
 /**
@@ -92,6 +92,7 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 #endif
+
 class Codec {
   public:
     // Encodes a tree to a single string.
@@ -127,89 +128,13 @@ class Codec {
         return dfs2(ss);
     }
 };
-// class Codec {
-//   public:
-//     // Encodes a tree to a single string.
-//     string serialize(TreeNode *root) {
-//         stringstream ss;
-//         queue<TreeNode *> q1, q2;
-//         q1.push(root);
-//         while (!q1.empty()) {
-//             while (!q1.empty()) {
-//                 auto now = q1.front();
-//                 q1.pop();
-//                 if (now == nullptr)
-//                     ss << "null" << ',';
-//                 else {
-//                     ss << now->val << ',';
-//                     q2.push(now->left);
-//                     q2.push(now->right);
-//                 }
-//             }
-//             swap(q1, q2);
-//         }
-//         return ss.str();
-//     }
-
-//     // Decodes your encoded data to tree.
-//     TreeNode *deserialize(string data) {
-//         deque<optional<int>> V;
-//         string now;
-//         for (int i = 0; i < (int)data.size(); i++) {
-//             if (data[i] == ',') {
-//                 if (now == "null")
-//                     V.push_back(nullopt);
-//                 else {
-//                     V.push_back(stol(now));
-//                 }
-//                 now.clear();
-//             } else {
-//                 now.push_back(data[i]);
-//             }
-//         }
-//         if (!V.front().has_value())
-//             return nullptr;
-//         queue<TreeNode *> q1, q2;
-//         TreeNode *root = new TreeNode(V.front().value());
-//         V.pop_front();
-//         q1.push(root);
-//         while (!q1.empty()) {
-//             while (!q1.empty()) {
-//                 auto now = q1.front();
-//                 q1.pop();
-//                 if (now == nullptr) {
-//                     continue;
-//                 } else {
-//                     TreeNode *l = nullptr;
-//                     if (!V.empty()) {
-//                         if (V.front().has_value())
-//                             l = new TreeNode(V.front().value());
-//                         V.pop_front();
-//                     }
-
-//                     TreeNode *r = nullptr;
-//                     if (!V.empty()) {
-//                         if (V.front().has_value())
-//                             r = new TreeNode(V.front().value());
-//                         V.pop_front();
-//                     }
-//                     now->left = l;
-//                     now->right = r;
-//                     if (l)
-//                         q2.push(l);
-//                     if (r)
-//                         q2.push(r);
-//                 }
-//             }
-//             swap(q1, q2);
-//         }
-//         return root;
-//     }
-// };
 
 // Your Codec object will be instantiated and called as such:
-// Codec ser, deser;
-// TreeNode* ans = deser.deserialize(ser.serialize(root));
+// Codec* ser = new Codec();
+// Codec* deser = new Codec();
+// string tree = ser->serialize(root);
+// TreeNode* ans = deser->deserialize(tree);
+// return ans;
 
 #ifdef RINNE
 int32_t main() {
