@@ -70,46 +70,35 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=479 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [479] 最大回文数乘积
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
+    int largestPalindrome(int n) {
+        if (n == 1)
+            return 9;
+        ll base = 1; // 10^(n-1)
+        for (int i = 1; i < n; i++)
+            base *= 10;
+        ll lo = base, hi = base * 10 - 1;
+        for (ll i = hi;; i--) {
+            ll full = i;
+            ll now = i;
+            while (now) {
+                full = full * 10 + now % 10;
+                now /= 10;
             }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
+            for (ll j = hi; j * j >= full; j--) {
+                if (full % j == 0) {
+                    ll f1 = full / j;
+                    if (f1 >= lo && f1 <= hi)
+                        return full % 1337;
+                }
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
     }
 };
 

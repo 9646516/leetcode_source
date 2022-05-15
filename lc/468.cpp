@@ -70,46 +70,100 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=468 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [468] 验证IP地址
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
+    bool check_v4(string &s) {
+        string now;
+        vector<string> V;
+        for (int i = 0; i < (int)s.size(); i++) {
+            if (s[i] == '.') {
+                V.push_back(now);
+                now.clear();
             } else {
-                check();
-                len = 1;
-                pre = val;
+                now.push_back(s[i]);
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        V.push_back(now);
+        if (V.size() != 4)
+            return 0;
+        debug(V);
+        for (auto &i : V) {
+            if (i == "0")
+                continue;
+            if (i.size() == 0 || i.size() > 3) {
+                return 0;
+            }
+            for (int j = 0; j < (int)i.size(); j++) {
+                if (!isdigit(i[j]))
+                    return 0;
+            }
+            if (i[0] == '0')
+                return 0;
+            int now = 0;
+            for (int j = 0; j < (int)i.size(); j++)
+                now = now * 10 + i[j] - '0';
+            if (now > 255)
+                return 0;
+        }
+        return 1;
+    }
+    bool check_v6(string &s) {
+        string now;
+        vector<string> V;
+        for (int i = 0; i < (int)s.size(); i++) {
+            if (s[i] == ':') {
+                V.push_back(now);
+                now.clear();
+            } else {
+                now.push_back(s[i]);
+            }
+        }
+        V.push_back(now);
+        if (V.size() != 8)
+            return 0;
+        for (auto &i : V) {
+            if (i.size() == 0 || i.size() > 4) {
+                return 0;
+            }
+            for (int j = 0; j < (int)i.size(); j++) {
+                if (isdigit(i[j]))
+                    continue;
+                if ('a' <= i[j] && i[j] <= 'f')
+                    continue;
+                if ('A' <= i[j] && i[j] <= 'F')
+                    continue;
+                return 0;
+            }
+        }
+        return 1;
+    }
+    string validIPAddress(string queryIP) {
+        bool has_dot = false;
+        bool has_com = false;
+        for (int i = 0; i < (int)queryIP.size(); i++) {
+            has_dot |= queryIP[i] == '.';
+            has_com |= queryIP[i] == ':';
+        }
+        if (has_dot && has_com)
+            return "Neither";
+        else if (has_dot) {
+            if (check_v4(queryIP))
+                return "IPv4";
+            else
+                return "Neither";
+        } else if (has_com) {
+            if (check_v6(queryIP))
+                return "IPv6";
+            else
+                return "Neither";
+        } else {
+            return "Neither";
+        }
     }
 };
 
@@ -122,7 +176,7 @@ int32_t main() {
     cout << fixed;
     vector<int> data{};
     Solution s;
-    auto res = s.solve(data);
+    auto res = s.validIPAddress("172.16.254.1");
     debug(res);
     return 0;
 }

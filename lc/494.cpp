@@ -70,46 +70,46 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=494 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [494] 目标和
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
-            }
+    int findTargetSumWays(vector<int> &nums, int target) {
+        vector<int> F;
+        vector<int> S;
+        for (int i = 0; i < (int)nums.size(); i++) {
+            if (i & 1)
+                S.push_back(nums[i]);
+            else
+                F.push_back(nums[i]);
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        unordered_map<int, int> mp;
+        int ans = 0;
+        for (int i = 0; i < (1 << F.size()); i++) {
+            ll xs = 0;
+            for (int j = 0; j < (int)F.size(); j++) {
+                if ((i >> j) & 1)
+                    xs += F[j];
+                else
+                    xs -= F[j];
+            }
+            mp[xs]++;
+        }
+        for (int i = 0; i < (1 << S.size()); i++) {
+            ll xs = 0;
+            for (int j = 0; j < (int)S.size(); j++) {
+                if ((i >> j) & 1)
+                    xs += S[j];
+                else
+                    xs -= S[j];
+            }
+            int val = target - xs;
+            ans += mp.count(val) ? mp[val] : 0;
+        }
+        return ans;
     }
 };
 
@@ -120,9 +120,9 @@ int32_t main() {
     cout.tie(0);
     cout.precision(10);
     cout << fixed;
-    vector<int> data{};
+    vector<int> data{1, 1, 1, 1, 1};
     Solution s;
-    auto res = s.solve(data);
+    auto res = s.findTargetSumWays(data, 3);
     debug(res);
     return 0;
 }

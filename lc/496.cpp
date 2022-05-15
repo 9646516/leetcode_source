@@ -70,48 +70,85 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=496 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [496] 下一个更大元素 I
  */
-
-class Solution {
-  public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
-            }
+using T = int;
+constexpr int N = 1 << (__lg(10005) + 1);
+#define F0R(i, a) for (int i = 0; i < (a); i++)
+#define F0Rd(i, a) for (int i = (a)-1; i >= 0; i--)
+template <int SZ> struct Seg {
+    T seg[2 * SZ];
+    static const T ID = INF;
+    void init() { F0R(i, 2 * SZ) seg[i] = ID; }
+    Seg() { init(); }
+    void build() { F0Rd(i, SZ) seg[i] = comb(seg[2 * i], seg[2 * i + 1]); }
+    T comb(const T &a, const T &b) const { return min(a, b); }
+    void upd(int p, T value) {
+        for (seg[p += SZ] = value; p > 1; p >>= 1)
+            seg[p >> 1] = comb(seg[(p | 1) ^ 1], seg[p | 1]);
+    }
+    void set(const vector<T> &x) {
+        assert((int)x.size() <= SZ);
+        for (int i = 0; i < (int)x.size(); i++) {
+            seg[i + SZ] = x[i];
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        build();
+    }
+    T query(int l, int r) {
+        if (l > r)
+            return 0;
+        T res1 = ID, res2 = ID;
+        r++;
+        for (l += SZ, r += SZ; l < r; l >>= 1, r >>= 1) {
+            if (l & 1)
+                res1 = comb(res1, seg[l++]);
+            if (r & 1)
+                res2 = comb(seg[--r], res2);
+        }
+        return comb(res1, res2);
     }
 };
+class Solution {
+  public:
+    vector<int> nextGreaterElement(vector<int> &nums1, vector<int> &nums2) {
+        deque<int> q;
+        vector<int> mp(10005, -1);
+        for (int i = nums2.size() - 1; i >= 0; i--) {
+            while (!q.empty() && q.back() <= nums2[i]) {
+                q.pop_back();
+            }
+            if (!q.empty())
+                mp[nums2[i]] = q.back();
+            q.push_back(nums2[i]);
+        }
+        vector<int> ret;
+        for (int i : nums1) {
+            ret.push_back(mp[i]);
+        }
+        return ret;
+    }
+};
+// class Solution {
+//   public:
+//     vector<int> nextGreaterElement(vector<int> &nums1, vector<int> &nums2) {
+//         Seg<N> *seg = new Seg<N>();
+//         vector<int> mp(10005, -1);
+//         for (int i = nums2.size() - 1; i >= 0; i--) {
+//             auto pos = seg->query(nums2[i] + 1, 10000);
+//             if (pos != INF)
+//                 mp[nums2[i]] = nums2[pos];
+//             seg->upd(nums2[i], i);
+//         }
+//         vector<int> ret;
+//         for (int i : nums1) {
+//             ret.push_back(mp[i]);
+//         }
+//         delete seg;
+//         return ret;
+//     }
+// };
 
 #ifdef RINNE
 int32_t main() {

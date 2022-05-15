@@ -70,46 +70,35 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=481 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [481] 神奇字符串
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
-            }
+    int magicalString(int n) {
+        vector<int> V;
+        int ptr = 0;
+        int has = 1;
+        int ch = 1;
+        while (V.size() < n) {
+            for (int i = 0; i < has; i++)
+                V.push_back(ch);
+            if (ch == 1)
+                ch = 2;
+            else
+                ch = 1;
+            ptr++;
+            if (ptr >= V.size())
+                has = ch;
+            else
+                has = V[ptr];
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        int ans = 0;
+        for (int i = 0; i < n; i++)
+            ans += V[i] == 1;
+        return ans;
     }
 };
 

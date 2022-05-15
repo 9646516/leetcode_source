@@ -70,46 +70,38 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=491 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [491] 递增子序列
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
+    vector<vector<int>> findSubsequences(vector<int> &nums) {
+        vector<vector<int>> ret;
+        for (int i = 0; i < (1 << nums.size()); i++) {
+            if (__builtin_popcount(i) <= 1)
+                continue;
+            int pre = -INF;
+            vector<int> now;
+            bool ok = 1;
+            for (int j = 0; j < (int)nums.size(); j++) {
+                if ((i >> j) & 1) {
+                    if (nums[j] >= pre) {
+                        pre = nums[j];
+                        now.push_back(nums[j]);
+                    } else {
+                        ok = 0;
+                        break;
+                    }
+                }
             }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
-            }
+            if (ok)
+                ret.push_back(move(now));
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        sort(ret.begin(), ret.end());
+        ret.resize(unique(ret.begin(), ret.end()) - ret.begin());
+        return ret;
     }
 };
 

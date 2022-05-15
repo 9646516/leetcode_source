@@ -70,46 +70,49 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=501 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [501] 二叉搜索树中的众数
  */
 
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
+    unordered_map<int, int> mp;
+    void dfs(TreeNode *now) {
+        if (!now)
+            return;
+        mp[now->val]++;
+        if (now->left)
+            dfs(now->left);
+        if (now->right)
+            dfs(now->right);
+    }
+    vector<int> findMode(TreeNode *root) {
+        dfs(root);
+        int cnt = 0;
+        for (auto [a, b] : mp) {
+            if (b > cnt) {
+                cnt = b;
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        vector<int> ret;
+        for (auto [a, b] : mp) {
+            if (b == cnt) {
+                ret.push_back(a);
+            }
+        }
+        return ret;
     }
 };
 

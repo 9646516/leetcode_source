@@ -70,46 +70,53 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=483 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [483] 最小好进制
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
+    string smallestGoodBase(string n) {
+        ll val = stoll(n);
+        ll res = numeric_limits<ll>::max();
+        for (int i = 2; i <= 63; i++) {
+            if ((1LL << i) - 1 > val)
+                break;
+            ll L = 2, R = 1e18 - 1, ans = 2;
+            while (L <= R) {
+                ll mid = (L + R) / 2;
+                ll xs = 0;
+                ll base = 1;
+                for (int j = 0; j < i && xs <= val; j++) {
+                    xs += base;
+                    if ((double)base * mid > 1e18) {
+                        base = 1e18;
+                    } else {
+                        base *= mid;
+                    }
+                }
+                if (xs <= val)
+                    L = mid + 1, ans = mid;
                 else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
+                    R = mid - 1;
             }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
+            ll xs = 0;
+            ll base = 1;
+            for (int j = 0; j < i && xs <= val; j++) {
+                xs += base;
+                if ((double)base * ans > 1e18) {
+                    base = 1e18;
+                } else {
+                    base *= ans;
+                }
+            }
+
+            if (xs == val) {
+                res = min(res, ans);
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        return to_string(res);
     }
 };
 
@@ -122,7 +129,7 @@ int32_t main() {
     cout << fixed;
     vector<int> data{};
     Solution s;
-    auto res = s.solve(data);
+    auto res = s.smallestGoodBase("3");
     debug(res);
     return 0;
 }

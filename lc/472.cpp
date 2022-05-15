@@ -70,46 +70,55 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=472 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [472] 连接词
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
-            }
+    vector<string> findAllConcatenatedWordsInADict(vector<string> &V) {
+        const uint64_t SEED = 233;
+        vector<uint64_t> P;
+        P.push_back(1);
+        for (int i = 1; i < 10000 + 5; i++) {
+            P.push_back(P.back() * SEED);
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        vector<uint64_t> H;
+        multiset<uint64_t> st;
+        for (auto &i : V) {
+            uint64_t now = 0;
+            for (int j = 0; j < (int)i.size(); j++) {
+                now = now * SEED + i[j];
+            }
+            H.push_back(now);
+            st.insert(now);
+        }
+        vector<string> ret;
+        for (int i = 0; i < (int)V.size(); i++) {
+            if (V[i].empty())
+                continue;
+            st.erase(H[i]);
+            vector<int> dp(V[i].size(), -1);
+            function<bool(int)> gao = [&](int x) -> bool {
+                if (x >= V[i].size())
+                    return 1;
+                if (dp[x] != -1)
+                    return dp[x];
+                uint64_t now = 0;
+                for (int j = x; j < (int)V[i].size(); j++) {
+                    now = now * SEED + V[i][j];
+                    if (st.count(now) && gao(j + 1)) {
+                        return dp[x] = 1;
+                    }
+                }
+                return dp[x] = 0;
+            };
+            if (gao(0))
+                ret.push_back(V[i]);
+            st.insert(H[i]);
+        }
+        return ret;
     }
 };
 
@@ -120,9 +129,9 @@ int32_t main() {
     cout.tie(0);
     cout.precision(10);
     cout << fixed;
-    vector<int> data{};
+    vector<string> d{"ratcatdogcat", "rat", "catsdogcats"};
     Solution s;
-    auto res = s.solve(data);
+    auto res = s.findAllConcatenatedWordsInADict(d);
     debug(res);
     return 0;
 }

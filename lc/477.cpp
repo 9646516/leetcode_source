@@ -70,46 +70,34 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=477 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [477] 汉明距离总和
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
+    int totalHammingDistance(vector<int> &nums) {
+        vector<int> cnt(32);
+        for (int i : nums) {
+            for (int j = 0; j < 31; j++) {
+                cnt[j] += ((i >> j) & 1);
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        int ans = 0;
+        for (int i = 0; i < (int)nums.size(); i++) {
+            for (int j = 0; j < 31; j++) {
+                cnt[j] -= ((nums[i] >> j) & 1);
+            }
+            for (int j = 0; j < 31; j++) {
+                if (((nums[i] >> j) & 1)) {
+                    ans += (int)nums.size() - i - 1 - cnt[j];
+                } else {
+                    ans += cnt[j];
+                }
+            }
+        }
+        return ans;
     }
 };
 

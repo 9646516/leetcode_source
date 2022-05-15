@@ -70,46 +70,54 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=480 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [480] 滑动窗口中位数
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
+    vector<double> medianSlidingWindow(vector<int> &nums, int k) {
+        deque<int> q;
+        multiset<int> f, s;
+        int n1, n2;
+        if (k & 1)
+            n1 = k / 2 + 1;
+        else
+            n1 = k / 2;
+        n2 = k - n1;
+        vector<double> ret;
+        for (int i : nums) {
+            q.push_back(i);
+            if (f.size() < n1)
+                f.insert(i);
+            else {
+                f.insert(i);
+                auto r = *prev(f.end());
+                f.erase(prev(f.end()));
+                s.insert(r);
             }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
+            if (q.size() > k) {
+                auto to_remove = q.front();
+                q.pop_front();
+                if (s.count(to_remove))
+                    s.erase(s.lower_bound(to_remove));
+                else {
+                    f.erase(f.lower_bound(to_remove));
+                    f.insert(*s.begin());
+                    s.erase(s.begin());
+                }
+            }
+            debug(f, s);
+            if (q.size() == k) {
+                if (k & 1) {
+                    ret.push_back(*prev(f.end()));
+                } else {
+                    ret.push_back((1.0 * (*prev(f.end())) + *s.begin()) / 2.0);
+                }
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        return ret;
     }
 };
 
@@ -120,9 +128,9 @@ int32_t main() {
     cout.tie(0);
     cout.precision(10);
     cout << fixed;
-    vector<int> data{};
+    vector<int> data{1, 3, -1, -3, 5, 3, 6, 7};
     Solution s;
-    auto res = s.solve(data);
+    auto res = s.medianSlidingWindow(data, 3);
     debug(res);
     return 0;
 }

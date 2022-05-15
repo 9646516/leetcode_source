@@ -70,46 +70,39 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=475 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [475] 供暖器
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
+    int findRadius(vector<int> &houses, vector<int> &heaters) {
+        sort(houses.begin(), houses.end());
+        sort(heaters.begin(), heaters.end());
+        ll L = 0, R = 1e10, ans = 1e10;
+        while (L <= R) {
+            ll mid = (L + R) / 2;
+            bool ok = 1;
+            int ptr = 0;
+            for (int i : houses) {
+                while (ptr < heaters.size() &&
+                       !(i >= heaters[ptr] - mid && i <= heaters[ptr] + mid)) {
+                    ptr++;
+                }
+                if (ptr >= heaters.size()) {
+                    ok = 0;
                     break;
+                }
             }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
+            if (ok) {
+                ans = mid;
+                R = mid - 1;
             } else {
-                check();
-                len = 1;
-                pre = val;
+                L = mid + 1;
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        return ans;
     }
 };
 

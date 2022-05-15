@@ -70,48 +70,48 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=497 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [497] 非重叠矩形中的随机点
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
-            }
+    vector<vector<int>> box;
+    vector<ll> size;
+    uniform_int_distribution<int> d;
+    mt19937 rng;
+    Solution(vector<vector<int>> &rects) {
+        box = move(rects);
+        for (auto &i : box) {
+            int w = i[2] - i[0] + 1;
+            int h = i[3] - i[1] + 1;
+            size.push_back(w * h);
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        for (int i = 1; i < (int)size.size(); i++) {
+            size[i] += size[i - 1];
+        }
+        d = uniform_int_distribution<int>(1, size.back());
+    }
+
+    vector<int> pick() {
+        int idx = d(rng) - 1;
+        auto pos = upper_bound(size.begin(), size.end(), idx) - size.begin();
+        int rnk = idx;
+        if (pos)
+            rnk -= size[pos - 1];
+        int w = box[pos][2] - box[pos][0] + 1;
+        int ox = rnk % w;
+        int oy = rnk / w;
+        return {box[pos][0] + ox, box[pos][1] + oy};
     }
 };
+
+/**
+ * Your Solution object will be instantiated and called as such:
+ * Solution* obj = new Solution(rects);
+ * vector<int> param_1 = obj->pick();
+ */
 
 #ifdef RINNE
 int32_t main() {

@@ -70,46 +70,33 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=485 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [485] 最大连续 1 的个数
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
+    int findMaxConsecutiveOnes(vector<int> &nums) {
+        int ans = 0;
+        int len = 0;
+        int pre = 1;
+        for (int i : nums) {
+            if (i) {
+                if (pre) {
+                    len++;
+                } else {
+                    len = 1;
+                    pre = 1;
+                }
             } else {
-                check();
-                len = 1;
-                pre = val;
+                ans = max(ans, len);
+                len = 0;
+                pre = 0;
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        ans = max(ans, len);
+        return ans;
     }
 };
 

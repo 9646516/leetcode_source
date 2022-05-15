@@ -70,48 +70,40 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=478 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [478] 在圆内随机生成点
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
+    double rad, x, y;
+    Solution(double radius, double x_center, double y_center) {
+        rad = radius;
+        x = x_center;
+        y = y_center;
+    }
+
+    vector<double> randPoint() {
+        mt19937 rng{random_device{}()};
+        uniform_real_distribution<double> uni{-rad, rad};
+        while (1) {
+            double x2 = x + uni(rng);
+            double y2 = y + uni(rng);
+            double ox = x2 - x;
+            double oy = y2 - y;
+            if (ox * ox + oy * oy <= rad * rad) {
+                return {x2, y2};
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
     }
 };
+
+/**
+ * Your Solution object will be instantiated and called as such:
+ * Solution* obj = new Solution(radius, x_center, y_center);
+ * vector<double> param_1 = obj->randPoint();
+ */
 
 #ifdef RINNE
 int32_t main() {

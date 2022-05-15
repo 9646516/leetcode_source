@@ -70,46 +70,41 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=473 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [473] 火柴拼正方形
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
-                else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
-            }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
-            }
+    bool makesquare(vector<int> &V) {
+        auto sum = accumulate(V.begin(), V.end(), 0LL);
+        if (sum % 4)
+            return 0;
+        else {
+            int need = sum / 4;
+            vector<int> dp(1 << V.size(), -1);
+            function<bool(int)> gao = [&](int mask) -> bool {
+                if (mask == 0)
+                    return 1;
+                else if (dp[mask] != -1)
+                    return dp[mask];
+                for (int mask2 = mask; mask2 != 0; mask2 = (mask2 - 1) & mask) {
+                    int xs = 0;
+                    for (int i = 0; i < V.size(); i++) {
+                        if ((mask2 >> i) & 1)
+                            xs += V[i];
+                        if (xs > need)
+                            break;
+                    }
+                    if (xs == need && gao(mask ^ mask2)) {
+                        return dp[mask] = 1;
+                    }
+                }
+                return dp[mask] = 0;
+            };
+            return gao((1 << V.size()) - 1);
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
     }
 };
 

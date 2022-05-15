@@ -70,46 +70,37 @@ template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) {
 #endif
 
 /*
- * @lc app=leetcode.cn id=467 lang=cpp
+ * @lc app=leetcode.cn id=474 lang=cpp
  *
- * [467] 环绕字符串中唯一的子字符串
+ * [474] 一和零
  */
 
 class Solution {
   public:
-    int findSubstringInWraproundString(string p) {
-        vector<int> cnt(26);
-        char pre = p[0] - 'a';
-        int len = 1;
-        auto check = [&]() {
-            int now = pre;
-            int now_len = len;
-            while (now_len) {
-                cnt[now] = max(cnt[now], now_len);
-                if (now == 25)
-                    now = 0;
+    int findMaxForm(vector<string> &strs, int m, int n) {
+        static int dp[105][105];
+        memset(dp, 0, sizeof(dp));
+        for (auto &s : strs) {
+            int s1 = 0, s0 = 0;
+            for (int i = 0; i < (int)s.size(); i++) {
+                if (s[i] == '0')
+                    s0++;
                 else
-                    now++;
-                now_len--;
-                if (now == pre)
-                    break;
+                    s1++;
             }
-        };
-        for (int i = 1; i < (int)p.size(); i++) {
-            int val = p[i] - 'a';
-            int need = p[i - 1] - 'a' + 1;
-            if (need == 26)
-                need = 0;
-            if (val == need) {
-                len++;
-            } else {
-                check();
-                len = 1;
-                pre = val;
+            for (int i = m - s0; i >= 0; i--) {
+                for (int j = n - s1; j >= 0; j--) {
+                    dp[i + s0][j + s1] = max(dp[i + s0][j + s1], dp[i][j] + 1);
+                }
             }
         }
-        check();
-        return accumulate(cnt.begin(), cnt.end(), 0);
+        int ans = 0;
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                ans = max(ans, dp[i][j]);
+            }
+        }
+        return ans;
     }
 };
 
